@@ -393,4 +393,52 @@ public class BoardTest {
         board.mark(0, 2);
         assertTrue(board.isInProgressMode() ^ board.isInFinishedMode());
     }
+
+    // ---------------------------------------------------------------
+    // Tests ajoutes apres analyse de mutation (PITest) - partie 3 du TP
+    // Mutants survivants : isWinningMoveByPlayer, anti-diagonale
+    //   - "currentRow + currentCol == 2" remplace par une soustraction
+    //   - "cells[2][0].getValue() == player" nie
+    // ---------------------------------------------------------------
+
+    @Test
+    public void xWinsOnAntiDiagonalFinishingAtCenter() {
+        // X : (0,2) puis (2,0), coup gagnant au centre (1,1) : 1 - 1 != 2
+        board.mark(0, 2); board.mark(0, 0);
+        board.mark(2, 0); board.mark(0, 1);
+        board.mark(1, 1);
+        assertEquals("X doit gagner sur l'anti-diagonale en finissant au centre",
+                Player.X, board.getWinner());
+        assertTrue(board.isInFinishedMode());
+    }
+
+    @Test
+    public void xWinsOnAntiDiagonalFinishingAtTopRightCorner() {
+        // X : (1,1) puis (2,0), coup gagnant en (0,2) : 0 - 2 != 2
+        board.mark(1, 1); board.mark(0, 0);
+        board.mark(2, 0); board.mark(0, 1);
+        board.mark(0, 2);
+        assertEquals("X doit gagner sur l'anti-diagonale en finissant en (0,2)",
+                Player.X, board.getWinner());
+        assertTrue(board.isInFinishedMode());
+    }
+
+    @Test
+    public void noWinOnAntiDiagonalWhenBottomLeftCornerBelongsToOpponent() {
+        // O occupe (2,0) ; X joue (0,2) puis (1,1) : pas de victoire
+        board.mark(0, 2); board.mark(2, 0);
+        board.mark(1, 1);
+        assertNull("Pas de gagnant : (2,0) appartient a O", board.getWinner());
+        assertTrue(board.isInProgressMode());
+        assertEquals(Player.O, board.getCurrentTurn());
+    }
+
+    @Test
+    public void noWinOnAntiDiagonalWhenCenterBelongsToOpponent() {
+        // O occupe (1,1) ; X joue (0,2) puis (2,0) : pas de victoire
+        board.mark(0, 2); board.mark(1, 1);
+        board.mark(2, 0);
+        assertNull("Pas de gagnant : le centre appartient a O", board.getWinner());
+        assertTrue(board.isInProgressMode());
+    }
 }
